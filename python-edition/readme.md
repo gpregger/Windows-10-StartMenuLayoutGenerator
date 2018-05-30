@@ -1,3 +1,8 @@
+Requirements:
+Python 3
+openpyxl
+lxml
+
 Instructions:
 
 1. Populate layout.xlsx with all the AppIDs you want in the start menu:
