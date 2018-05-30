@@ -1,6 +1,16 @@
 from openpyxl import load_workbook
 from lxml import etree
+import subprocess
 wb = load_workbook("layout.xlsx")
+
+
+def fetchAppID(AppName):
+    RawAppId = (subprocess.Popen(["C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "Get-StartApps | Where-Object { $_.Name -contains \"" + AppName + "\" } | Select-Object -Expand AppID"], stdout=subprocess.PIPE, shell=True))
+    (RawAppIdOutput, err) = RawAppId.communicate()
+    p_status = RawAppId.wait()
+    print (RawAppIdOutput[:-2])
+    return RawAppIdOutput[:-2]
+
 
 groups_range = wb['Groups']
 folders_range = wb['Folders']
@@ -36,10 +46,10 @@ for group in range (1, 16):
             for felement in range (2, 16):
                 if str(folders_range.cell(row=foldernum, column=felement).value) == "None":
                     break
-                etree.SubElement(currentFolder, "{http://schemas.microsoft.com/Start/2014/StartLayout}DesktopApplicationTile", Size="2x2", Column=str((felement - 2)%3 * 2), Row=str(int((felement - 2)/6 * 2)), DesktopApplicationID=str(folders_range.cell(row=foldernum, column=felement).value))
+                etree.SubElement(currentFolder, "{http://schemas.microsoft.com/Start/2014/StartLayout}DesktopApplicationTile", Size="2x2", Column=str((felement - 2)%3 * 2), Row=str(int((felement - 2)/6 * 2)), DesktopApplicationID=fetchAppID(str(folders_range.cell(row=foldernum, column=felement).value)))
         #Not a folder
         else:
-            etree.SubElement(currentGroup, "{http://schemas.microsoft.com/Start/2014/StartLayout}DesktopApplicationTile", Size="2x2", Column=str((gelement - 2)%3 * 2), Row=str(int((gelement - 2)/6 * 2)), DesktopApplicationID=str(groups_range.cell(row=group, column=gelement).value))
+            etree.SubElement(currentGroup, "{http://schemas.microsoft.com/Start/2014/StartLayout}DesktopApplicationTile", Size="2x2", Column=str((gelement - 2)%3 * 2), Row=str(int((gelement - 2)/6 * 2)), DesktopApplicationID=fetchAppID(str(groups_range.cell(row=group, column=gelement).value)))
 
 #Deal with Taskbar
 if str(taskbar_range.cell(row=1, column=1).value) != "None":
@@ -57,4 +67,6 @@ s = etree.tostring(root, pretty_print=True)
 et = etree.ElementTree(root)
 et.write("StartLayout.xml", pretty_print=True)
 
-#print (s)
+
+
+
