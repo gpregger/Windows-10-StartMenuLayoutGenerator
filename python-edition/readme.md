@@ -1,7 +1,4 @@
-Requirements:
-Python 3
-openpyxl
-lxml
+Requirements: Python 3, openpyxl, lxml
 
 Instructions:
 
