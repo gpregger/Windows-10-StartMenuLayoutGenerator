@@ -2,14 +2,15 @@ from openpyxl import load_workbook
 from lxml import etree
 import subprocess
 wb = load_workbook("layout.xlsx")
+logfile = open("appids.log", "w+")
 
 
 def fetchAppID(AppName):
-    RawAppId = (subprocess.Popen(["C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "Get-StartApps | Where-Object { $_.Name -contains \"" + AppName + "\" } | Select-Object -Expand AppID"], stdout=subprocess.PIPE, shell=True))
-    (RawAppIdOutput, err) = RawAppId.communicate()
-    p_status = RawAppId.wait()
-    print (RawAppIdOutput[:-2])
-    return RawAppIdOutput[:-2]
+    RawAppId = (subprocess.run(["C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "Get-StartApps | Where-Object { $_.Name -contains \"" + AppName + "\" } | Select-Object -Expand AppID"], stdout=subprocess.PIPE))
+    CleanAppId = str(RawAppId.stdout)[2:-5].replace("\\\\", "\\")
+    logfile.write(str(AppName) + "\n\t" + CleanAppId + "\n")
+    print (CleanAppId)
+    return CleanAppId
 
 
 groups_range = wb['Groups']
@@ -46,10 +47,12 @@ for group in range (1, 16):
             for felement in range (2, 16):
                 if str(folders_range.cell(row=foldernum, column=felement).value) == "None":
                     break
-                etree.SubElement(currentFolder, "{http://schemas.microsoft.com/Start/2014/StartLayout}DesktopApplicationTile", Size="2x2", Column=str((felement - 2)%3 * 2), Row=str(int((felement - 2)/6 * 2)), DesktopApplicationID=fetchAppID(str(folders_range.cell(row=foldernum, column=felement).value)))
+                AppID = fetchAppID(str(folders_range.cell(row=foldernum, column=felement).value))
+                etree.SubElement(currentFolder, "{http://schemas.microsoft.com/Start/2014/StartLayout}DesktopApplicationTile", Size="2x2", Column=str((felement - 2)%3 * 2), Row=str(int((felement - 2)/6 * 2)), DesktopApplicationID=AppID)
         #Not a folder
         else:
-            etree.SubElement(currentGroup, "{http://schemas.microsoft.com/Start/2014/StartLayout}DesktopApplicationTile", Size="2x2", Column=str((gelement - 2)%3 * 2), Row=str(int((gelement - 2)/6 * 2)), DesktopApplicationID=fetchAppID(str(groups_range.cell(row=group, column=gelement).value)))
+            AppID = fetchAppID(str(groups_range.cell(row=group, column=gelement).value))
+            etree.SubElement(currentGroup, "{http://schemas.microsoft.com/Start/2014/StartLayout}DesktopApplicationTile", Size="2x2", Column=str((gelement - 2)%3 * 2), Row=str(int((gelement - 2)/6 * 2)), DesktopApplicationID=AppID)
 
 #Deal with Taskbar
 if str(taskbar_range.cell(row=1, column=1).value) != "None":
@@ -66,7 +69,4 @@ s = etree.tostring(root, pretty_print=True)
 
 et = etree.ElementTree(root)
 et.write("StartLayout.xml", pretty_print=True)
-
-
-
-
+logfile.close()
