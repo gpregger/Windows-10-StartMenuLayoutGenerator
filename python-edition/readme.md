@@ -1,10 +1,10 @@
-Requirements: Python 3, openpyxl, lxml
+## Requirements: Python 3, openpyxl, lxml
 
-Instructions:
+## Instructions:
 
-1. Populate layout.xlsx with all the AppIDs you want in the start menu:
+1. Populate layout.xlsx with all the ~~AppIDs~~ App Names (as they appear in the start menu) you want in the start menu:
 
-      Use Powershell and the cmdlet Get-StartApps to  get the AppID of the thing you want
+      ~~Use Powershell and the cmdlet Get-StartApps to  get the AppID of the thing you want~~
 
 2. Every group with a Name is processed
 
