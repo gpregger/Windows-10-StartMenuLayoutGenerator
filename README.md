@@ -1,3 +1,5 @@
+Python edition preferred...
+
 If you find this then may god help you.
 
 I take no responsibility for loss of eyesight from exposure to the VBA code.
